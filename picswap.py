@@ -58,6 +58,10 @@ def main(argv):
     print("opening")
     first = misc.imread(firstpath)
     second = misc.imread(secondpath)
+    
+    # handle image too small
+    while first.size < second.size:
+        first = np.concatenate((first, first))
 
     # swap
     print("swapping")
