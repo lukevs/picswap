@@ -1,6 +1,12 @@
 # PicSwap
 Rearranges one image into another.
 
+## Usage
+
+```
+python picswap.py /path/for/image/to/rearrange /path/for/image/to/rearrange/into
+```
+
 ## Examples
 ![hands](https://raw.github.com/lkvnstrs/picswap/master/examples/hands.jpg) ![flower](https://raw.github.com/lkvnstrs/picswap/master/examples/flower.jpg) ![hands to flower](https://raw.github.com/lkvnstrs/picswap/master/examples/hands_to_flower.jpg)
 
