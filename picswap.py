@@ -1,84 +1,81 @@
-# PICSWAP
-# Rearranges one image to look like another.
+"""PICSWAP - Rearranges one image to look like another."""
 
 import sys
-import numpy as np
-
 from os import path
+
+import numpy as np
 from scipy import misc
 from skimage import color
 
-class PicSwapper(object):
-    """class for rearranging one image to look like another"""
 
-    def __init__(self): pass
+def argsort_by_value(arr):
+    """Argsorts the array by HSV value
 
-    def argsort_by_value(self, arr):
-        """Argsorts the array by HSV value
+    :param arr: image array to argsort
+    :type arr: numpy.ndarray
 
-        :param arr: image array to argsort
-        :type arr: numpy.ndarray
+    :returns: linearized indices to sort arr
+    :rtype: numpy.ndarray
+    """
 
-        :returns: linearized indices to sort arr
-        :rtype: numpy.ndarray
-        """
+    as_hsv = color.rgb2hsv(arr.reshape(1, -1, 3))
+    values = as_hsv[:,:,2]
+    return np.argsort(values.reshape(-1))
 
-        as_hsv = color.rgb2hsv(arr.reshape(1, -1, 3))
-        values = as_hsv[:,:,2]
-        return np.argsort(values.reshape(-1))
 
-    def swap(self, first, second, argsort=None):
-        """Rearranges the pixels in one image to create resemble another
+def swap(first, second, argsort=None):
+    """Rearranges the pixels in one image to create resemble another
 
-        :param first: image to rearrange
-        :type first: numpy.ndarray
+    :param first: image to rearrange
+    :type first: numpy.ndarray
 
-        :param second: image to rearrange into
-        :type second: numpy.ndarray
+    :param second: image to rearrange into
+    :type second: numpy.ndarray
 
-        :param argsort: function to argsort an image
-        :type argsort: function
+    :param argsort: function to argsort an image
+    :type argsort: function
 
-        :returns: the rearranged image
-        :rtype: numpy.ndarray
-        """
+    :returns: the rearranged image
+    :rtype: numpy.ndarray
+    """
 
-        # set argsort
-        if argsort is None:
-            argsort = self.argsort_by_value
+    # set argsort
+    if argsort is None:
+        argsort = argsort_by_value
 
-        # scale first if necessary
-        first = self.concatenate_to_scale(first, second.size)
+    # scale first if necessary
+    first = concatenate_to_scale(first, second.size)
 
-        # sort first
-        first = first.reshape(-1, 3)[argsort(first)]
+    # sort first
+    first = first.reshape(-1, 3)[argsort(first)]
 
-        # reverse argsort second
-        rearranged = argsort(second).argsort()
+    # reverse argsort second
+    rearranged = argsort(second).argsort()
 
-        return first[rearranged].reshape(second.shape)
+    return first[rearranged].reshape(second.shape)
 
-    def concatenate_to_scale(self, arr, size):
-        """Concatenates an array onto itself until it is at least size
 
-        :param arr: arr to scale
-        :type arr: numpy.ndarray
+def concatenate_to_scale(arr, size):
+    """Concatenates an array onto itself until it is at least size
 
-        :param size: size to scale to or above
-        :type size: int
+    :param arr: arr to scale
+    :type arr: numpy.ndarray
 
-        :returns: the scaled array
-        :rtype: numpy.ndarray
-        """
+    :param size: size to scale to or above
+    :type size: int
 
-        while arr.size < size:
-            arr = np.concatenate((arr, arr))
+    :returns: the scaled array
+    :rtype: numpy.ndarray
+    """
 
-        return arr
+    while arr.size < size:
+        arr = np.concatenate((arr, arr))
+
+    return arr
+
 
 def main(argv):
 
-    # manage path
     firstpath = argv[0]
     secondpath = argv[1]
 
@@ -88,19 +85,16 @@ def main(argv):
     secondbase = path.basename(secondpath)
     savepath = path.join(dir, firstbase[:-4] + "_to_" + secondbase)
 
-    # open
     print("opening")
     first = misc.imread(firstpath)
     second = misc.imread(secondpath)
 
-    # swap
     print("swapping")
-    ps = PicSwapper()
-    img = ps.swap(first, second)
+    img = swap(first, second)
 
-    # save
     print ("saving")
     misc.imsave(savepath, img)
+
 
 if __name__ == "__main__":
     main(sys.argv[1:])
